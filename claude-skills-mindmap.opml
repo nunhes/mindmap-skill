@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>Creating Claude Skills</title>
+    <dateCreated>Mon, 20 Oct 2025 00:00:00 GMT</dateCreated>
+  </head>
+  <body>
+    <outline text="Claude Skills" _note="A framework for extending Claude's capabilities through specialized instructions and tools">
+      <outline text="Concept" _note="Skills are instruction sets that teach Claude how to perform specific tasks with expert-level quality">
+        <outline text="Specialized instructions" _note="Detailed guidance for specific tasks"/>
+        <outline text="Best practices" _note="Condensed wisdom from extensive testing"/>
+        <outline text="Tool integration" _note="Python libraries and system commands"/>
+      </outline>
+      <outline text="Structure" _note="Skills contain a SKILL.md file with metadata and instructions, plus any supporting files">
+        <outline text="SKILL.md" _note="Main instruction file with frontmatter"/>
+        <outline text="Supporting files" _note="Fonts, templates, libraries"/>
+        <outline text="LICENSE.txt" _note="Usage terms and attribution"/>
+      </outline>
+      <outline text="Creation Process" _note="Building a skill requires identifying a task, testing approaches, and documenting best practices">
+        <outline text="Identify task" _note="Find repetitive or complex operations"/>
+        <outline text="Test approaches" _note="Iterate to find optimal methods"/>
+        <outline text="Document patterns" _note="Write clear, actionable instructions"/>
+        <outline text="Package resources" _note="Include necessary files and tools"/>
+      </outline>
+      <outline text="Usage" _note="Claude reads skills before starting tasks, applying the specialized knowledge to produce better results">
+        <outline text="Automatic loading" _note="Skills available in /mnt/skills/"/>
+        <outline text="Claude reads first" _note="Reviews SKILL.md before starting"/>
+        <outline text="Apply knowledge" _note="Uses instructions during execution"/>
+      </outline>
+      <outline text="Types" _note="Skills can be public (built-in), example (optional), or user-created (custom)">
+        <outline text="Public" _note="Core skills like docx, pptx, xlsx"/>
+        <outline text="Example" _note="Optional skills like canvas-design"/>
+        <outline text="User" _note="Custom skills you create"/>
+      </outline>
+      <outline text="Benefits" _note="Skills improve output quality, reduce trial and error, and enable complex workflows">
+        <outline text="Consistent quality" _note="Repeatable expert results"/>
+        <outline text="Time savings" _note="Skip common mistakes"/>
+        <outline text="Complex tasks" _note="Handle sophisticated workflows"/>
+      </outline>
+      <outline text="Resources" _note="Documentation and support channels for learning more about Claude Skills">
+        <outline text="Claude Documentation" _note="docs.claude.com"/>
+        <outline text="Support Center" _note="support.claude.com"/>
+        <outline text="API Reference" _note="docs.claude.com/api"/>
+        <outline text="Community" _note="Anthropic forums and Discord"/>
+      </outline>
+    </outline>
+  </body>
+</opml>
