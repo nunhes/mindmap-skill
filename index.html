@@ -7,18 +7,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @font-face {
-      font-family: 'Hubot Sans';
-      src: url('./fonts/hubot_sans.ttf') format('truetype');
-    }
-    body {
-      font-family: 'Hubot Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-  </style>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <div id="root"></div>
@@ -44,8 +33,9 @@
       const [panStart, setPanStart] = useState({ x: 0, y: 0 });
       const [expandedNodes, setExpandedNodes] = useState({});
       const [hiddenNodes, setHiddenNodes] = useState({});
-      const [nodesToMove, setNodesToMove] = useState([]); // Changed from ref to state
+      const nodesToMoveRef = useRef([]); // Use ref so descendants stay synced during drag frames
       const containerRef = useRef(null);
+      const nodesBeingDragged = nodesToMoveRef.current;
 
       // Parse palette.xml
       useEffect(() => {
@@ -68,7 +58,7 @@
       useEffect(() => {
         if (colors.length === 0) return;
 
-        fetch('./claude-skills-mindmap.opml')
+        fetch('./mindmap.opml', { cache: 'no-store' })
           .then(response => response.text())
           .then(opmlText => {
             const parser = new DOMParser();
@@ -91,8 +81,11 @@
             // Calculate positions
             const centerPos = { x: 50, y: 50 };
             const positions = { center: centerPos };
-            const radius = 20; // Distance from center to first level
+            const baseRadius = 24;
+            const radius = baseRadius + Math.max(childOutlines.length - 10, 0) * 2; // Scale only when very crowded
             const angleStep = (2 * Math.PI) / childOutlines.length;
+            const clampPosition = (value) => Math.max(6, Math.min(94, value));
+            const distanceFromParent = (level) => 16 + Math.min(level, 4) * 6;
 
             // Build nodes object
             const newNodes = {
@@ -125,13 +118,15 @@
               } else {
                 // Subsequent levels: extend outward from parent
                 const parentNode = newNodes[parentId];
-                const distance = 15; // Distance from parent
+                const distance = distanceFromParent(level); // Grow spacing with depth
                 // Simply use the provided angle directly for spreading
                 x = parentNode.x + distance * Math.cos(parentAngle);
                 y = parentNode.y + distance * Math.sin(parentAngle);
               }
 
-              positions[nodeId] = { x, y };
+              const clampedX = clampPosition(x);
+              const clampedY = clampPosition(y);
+              positions[nodeId] = { x: clampedX, y: clampedY };
 
               // Keep children data for popup display
               const children = Array.from(outline.children).map(child => ({
@@ -142,8 +137,8 @@
               newNodes[nodeId] = {
                 id: nodeId,
                 label: outline.getAttribute('text'),
-                x,
-                y,
+                x: clampedX,
+                y: clampedY,
                 color: nodeColor, // Use the color passed from parent branch
                 description: outline.getAttribute('_note') || '',
                 children: children.length > 0 ? children : undefined,
@@ -157,8 +152,8 @@
               // Process children as actual nodes (for future multi-level support)
               if (hasChildren) {
                 // Increase angular spread - multiply angleRange by 1.5 to give more room
-                const spreadMultiplier = 1.5;
-                const effectiveRange = angleRange * spreadMultiplier;
+                const spreadMultiplier = 1.6 + Math.min(childOutlines.length - 1, 4) * 0.25;
+                const effectiveRange = Math.min(Math.PI * 1.15, angleRange * spreadMultiplier);
                 const childAngleStep = effectiveRange / childOutlines.length;
                 const startAngle = parentAngle - effectiveRange / 2;
 
@@ -185,6 +180,39 @@
           .catch(err => console.error('Error loading OPML:', err));
       }, [colors]);
 
+      useEffect(() => {
+        let detach = () => {};
+        const attachWheelHandler = () => {
+          const container = containerRef.current;
+          if (!container) return false;
+          const handleWheelEvent = (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            setZoom(prev => Math.max(0.1, Math.min(5, prev * delta)));
+          };
+          container.addEventListener('wheel', handleWheelEvent, { passive: false });
+          detach = () => container.removeEventListener('wheel', handleWheelEvent);
+          return true;
+        };
+
+        if (attachWheelHandler()) {
+          return () => detach();
+        }
+
+        let rafId = requestAnimationFrame(function retryAttach() {
+          if (!attachWheelHandler()) {
+            rafId = requestAnimationFrame(retryAttach);
+          }
+        });
+
+        return () => {
+          if (rafId) {
+            cancelAnimationFrame(rafId);
+          }
+          detach();
+        };
+      }, []);
+
       const handleMouseDown = (e, nodeId) => {
         e.preventDefault();
 
@@ -204,7 +232,7 @@
         };
 
         const allNodesToMove = [nodeId, ...getAllDescendants(nodeId, nodes)];
-        setNodesToMove(allNodesToMove); // Use state instead of ref
+        nodesToMoveRef.current = allNodesToMove;
 
         setDraggingNode(nodeId);
         setDragStart({ x: e.clientX, y: e.clientY });
@@ -238,10 +266,11 @@
 
       const handleMouseUp = () => {
         if (draggingNode) {
+          const nodesToUpdate = nodesToMoveRef.current;
           // Apply the final offset to the actual node positions
           setNodes(prev => {
             const newNodes = { ...prev };
-            nodesToMove.forEach(nodeId => {
+            nodesToUpdate.forEach(nodeId => {
               if (newNodes[nodeId]) {
                 newNodes[nodeId] = {
                   ...newNodes[nodeId],
@@ -256,14 +285,8 @@
 
         setDragOffset({ x: 0, y: 0 });
         setDraggingNode(null);
-        setNodesToMove([]); // Clear the nodes to move
+        nodesToMoveRef.current = []; // Clear the nodes to move
         setIsPanning(false);
-      };
-
-      const handleWheel = (e) => {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? 0.9 : 1.1;
-        setZoom(prev => Math.max(0.1, Math.min(5, prev * delta)));
       };
 
       const handleCanvasMouseDown = (e) => {
@@ -351,43 +374,42 @@
 
       if (Object.keys(nodes).length === 0) {
         return (
-          <div className="w-full h-screen bg-emerald-50 flex items-center justify-center">
-            <p className="text-gray-600">Loading mind map...</p>
+          <div className="loading-state">
+            <p className="loading-state__text">Loading mind map...</p>
           </div>
         );
       }
 
       return (
         <div
-          className="w-full h-screen bg-emerald-50 overflow-hidden"
+          className="mindmap-root"
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onWheel={handleWheel}
           style={{ cursor: isPanning ? 'grabbing' : 'default' }}
         >
           <div
-            className="w-full h-full relative"
+            className="canvas-container"
             ref={containerRef}
             onMouseDown={handleCanvasMouseDown}
             style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
           >
               <div
-                className="w-full h-full relative"
+                className="stage"
                 style={{
                   transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
                   transformOrigin: 'center center',
                   transition: isPanning || draggingNode ? 'none' : 'transform 0.1s ease-out'
                 }}
               >
-                <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
+                <svg className="connection-layer">
                   {Object.values(nodes).map((node) => {
                     if (!node.parentId || !isNodeVisible(node)) return null;
                     const parentNode = nodes[node.parentId];
                     if (!parentNode) return null;
 
                     // Apply drag offset if this node is being dragged
-                    const isBeingDragged = draggingNode && nodesToMove.includes(node.id);
-                    const parentBeingDragged = draggingNode && nodesToMove.includes(node.parentId);
+                    const isBeingDragged = draggingNode && nodesBeingDragged.includes(node.id);
+                    const parentBeingDragged = draggingNode && nodesBeingDragged.includes(node.parentId);
 
                     // Apply offset to get the visual position
                     const nodeX = node.x + (isBeingDragged ? dragOffset.x : 0);
@@ -412,16 +434,30 @@
 
                 {Object.values(nodes).filter(isNodeVisible).map((node) => {
                   // Apply drag offset if this node is being dragged
-                  const isBeingDragged = draggingNode && nodesToMove.includes(node.id);
+                  const isBeingDragged = draggingNode && nodesBeingDragged.includes(node.id);
                   const x = node.x + (isBeingDragged ? dragOffset.x : 0);
                   const y = node.y + (isBeingDragged ? dragOffset.y : 0);
                   const isBottomHalf = y > 50;
                   const isRightHalf = x > 50;
 
+                  const wrapperClass = `node-wrapper ${isBeingDragged ? 'node-wrapper--dragging' : 'node-wrapper--static'}`;
+                  const bubbleScale = selectedNode === node.id ? 1.15 : hoveredNode === node.id ? 1.1 : 1;
+                  const bubbleClass = [
+                    'node-bubble',
+                    node.id === 'center' ? 'node-bubble--center' : '',
+                    selectedNode === node.id ? 'node-bubble--selected' : '',
+                    hoveredNode === node.id && selectedNode !== node.id ? 'node-bubble--hovered' : ''
+                  ].filter(Boolean).join(' ');
+                  const bubbleShadow = selectedNode === node.id
+                    ? `0 0 0 4px ${node.color}55, 0 24px 45px rgba(15, 23, 42, 0.22)`
+                    : hoveredNode === node.id
+                      ? '0 20px 40px rgba(15, 23, 42, 0.18)'
+                      : '0 12px 30px rgba(15, 23, 42, 0.15)';
+
                   return (
                     <div
                       key={node.id}
-                      className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-move ${draggingNode === node.id ? '' : 'transition-all duration-200'}`}
+                      className={wrapperClass}
                       style={{
                         left: `${x}%`,
                         top: `${y}%`,
@@ -433,21 +469,18 @@
                       onMouseEnter={() => setHoveredNode(node.id)}
                       onMouseLeave={() => setHoveredNode(null)}
                     >
-                      <div className="relative">
+                      <div className="node-inner">
                         <div
-                          className={`
-                            px-6 py-3 rounded-full font-semibold shadow-lg
-                            ${hoveredNode === node.id ? 'scale-110' : 'scale-100'}
-                            ${selectedNode === node.id ? 'scale-115 ring-4 ring-offset-2' : ''}
-                            transition-all duration-200
-                          `}
+                          className={bubbleClass}
                           style={{
                             backgroundColor: node.id === 'center' ? node.color : '#ffffff',
                             color: node.id === 'center' ? '#ffffff' : node.color,
                             border: node.id === 'center' ? 'none' : `3px solid ${node.color}`,
                             fontSize: node.id === 'center' ? '1.25rem' : '0.95rem',
                             fontWeight: node.id === 'center' ? '700' : '600',
-                            ...(selectedNode === node.id && { '--tw-ring-color': node.color })
+                            transform: `scale(${bubbleScale})`,
+                            boxShadow: bubbleShadow,
+                            ...(selectedNode === node.id && { '--selection-color': node.color })
                           }}
                         >
                           {node.label}
@@ -456,32 +489,30 @@
                         {node.hasChildren && hoveredNode === node.id && (
                           <>
                             <div
-                              className="absolute -right-3 -top-3 w-6 h-6 rounded-full flex items-center justify-center cursor-pointer shadow-lg"
+                              className="node-action node-action--toggle"
                               style={{
                                 backgroundColor: node.color,
                                 color: node.id === 'center' ? '#ffffff' : (isLightColor(node.color) ? '#000000' : '#ffffff'),
-                                border: '3px solid white'
                               }}
                               onClick={(e) => toggleNodeExpansion(node.id, e)}
                               onMouseDown={(e) => e.stopPropagation()}
                             >
-                              <span className="text-sm font-bold">
+                              <span>
                                 {expandedNodes[node.id] ? '−' : '+'}
                               </span>
                             </div>
                             {expandedNodes[node.id] && hasHiddenChildren(node.id) && (
                               <div
-                                className="absolute -left-3 -top-3 w-6 h-6 rounded-full flex items-center justify-center cursor-pointer shadow-lg"
+                                className="node-action node-action--reset"
                                 style={{
                                   backgroundColor: node.color,
                                   color: node.id === 'center' ? '#ffffff' : (isLightColor(node.color) ? '#000000' : '#ffffff'),
-                                  border: '3px solid white'
                                 }}
                                 onClick={(e) => unhideAllChildren(node.id, e)}
                                 onMouseDown={(e) => e.stopPropagation()}
                                 title="Reset: Show all hidden children"
                               >
-                                <span className="text-sm font-bold">↻</span>
+                                <span>↻</span>
                               </div>
                             )}
                           </>
@@ -490,23 +521,19 @@
 
                       {selectedNode === node.id && (
                         <div
-                          className={`
-                            absolute w-80 bg-white rounded-lg shadow-xl p-6 border border-gray-200 z-30
-                            ${isBottomHalf ? 'bottom-full mb-4' : 'top-full mt-4'}
-                            ${isRightHalf ? 'right-0' : 'left-0'}
-                          `}
+                          className={`node-popover ${isBottomHalf ? 'node-popover--bottom' : 'node-popover--top'} ${isRightHalf ? 'node-popover--right' : 'node-popover--left'}`}
                         >
-                          <h3 className="font-bold text-lg mb-3" style={{ color: node.color }}>{node.label}</h3>
+                          <h3 className="node-popover__title" style={{ color: node.color }}>{node.label}</h3>
                           {node.description && (
-                            <p className="text-gray-700 text-sm mb-4 leading-relaxed">{node.description}</p>
+                            <p className="node-popover__description">{node.description}</p>
                           )}
 
                           {node.children && (
-                            <div className="space-y-3 pt-3" style={{ borderTop: `2px solid ${node.color}` }}>
+                            <div className="node-popover__children" style={{ borderTop: `2px solid ${node.color}` }}>
                               {node.children.map((child, i) => (
-                                <div key={i} className="flex flex-col">
-                                  <span className="font-semibold text-sm" style={{ color: node.color }}>{child.label}</span>
-                                  <span className="text-gray-600 text-xs mt-1">{child.detail}</span>
+                                <div key={i} className="child-entry">
+                                  <span className="child-entry__title" style={{ color: node.color }}>{child.label}</span>
+                                  <span className="child-entry__detail">{child.detail}</span>
                                 </div>
                               ))}
                             </div>
