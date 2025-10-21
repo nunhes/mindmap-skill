@@ -18,17 +18,16 @@ npx serve .
 ```
 
 After starting a server, visit `http://localhost:3000/index.html` (or the port reported in your terminal). Most browsers block `fetch()` from reading local files, so double‑clicking `index.html` will show an endless “Loading mind map…” message—use one of the commands above instead.
+The HTML file simply bootstraps the app; all interactive logic now lives in `index.jsx`.
 
 ## Project Structure
 
 ```
 mindmap-skills/
-├── index.html                    # Main preview file
+├── index.html                    # Minimal loader that mounts the React app
+├── index.jsx                     # React mind map logic
 ├── palette.xml                   # Color palette
 ├── mindmap.opml                  # Content structure
-├── fonts/                        # Custom fonts
-│   ├── hubot_sans.ttf
-│   └── OFL.txt
 ├── SKILL.md                      # Claude skill instructions
 ├── LICENSE.txt                   # MIT License
 └── README.md                     # This file
@@ -41,6 +40,8 @@ mindmap-skills/
 - **Hierarchical**: Supports nested information structures
 - **Customizable**: Easy to modify colors, content, and fonts
 - **No build step**: Pure HTML/JS/React via CDN
+- **Polished UI**: Long descriptions scroll on hover, keeping popovers compact and readable
+- **Web fonts ready**: Hubot Sans loads from Google Fonts with system fallbacks
 
 ## Creating a Custom Mindmap
 
@@ -84,17 +85,10 @@ Refresh your browser to see changes instantly!
 ## Customization
 
 ### Change Font
-1. Add your font file to `fonts/` directory
-2. Update `@font-face` in `index.html`:
-```css
-@font-face {
-  font-family: 'YourFont';
-  src: url('./fonts/your-font.ttf') format('truetype');
-}
-```
+Update the Google Fonts link in `index.html` and adjust the `font-family` declarations in `styles.css` as needed. By default the page loads Hubot Sans from Google Fonts with system fallbacks.
 
 ### Adjust Layout
-Edit the React component inside `index.html`:
+Edit the React component inside `index.jsx`:
 - `baseRadius` and `distanceFromParent` control branch spacing
 - Angular spread logic inside `processNode` balances siblings
 - Drag behavior lives near the render section (search for `node-wrapper`)
@@ -123,6 +117,7 @@ Edit the React component inside `index.html`:
 - **Alt+Click**: Toggle visibility (leaf nodes)
 - **Scroll**: Zoom in/out
 - **Drag background**: Pan view
+- **Hover popover text**: Scroll long descriptions without persistent scrollbars
 
 ## Troubleshooting
 
@@ -138,7 +133,7 @@ Edit the React component inside `index.html`:
 
 **Nodes overlapping:**
 - Reduce number of categories
-- Adjust the spacing constants in `index.html`
+- Adjust the spacing constants in `index.jsx`
 
 **Drag not working:**
 - Check browser console for React errors
@@ -160,7 +155,6 @@ Submit the zip file with:
 ## License
 
 MIT License - See LICENSE.txt
-Font license in fonts/OFL.txt
 
 ## Browser Compatibility
 
