@@ -24,9 +24,8 @@ After starting a server, visit `http://localhost:3000/index.html` (or the port r
 ```
 mindmap-skills/
 ├── index.html                    # Main preview file
-├── mindmap-generator.jsx         # React component
 ├── palette.xml                   # Color palette
-├── mindmap.opml                 # Content structure
+├── mindmap.opml                  # Content structure
 ├── fonts/                        # Custom fonts
 │   ├── hubot_sans.ttf
 │   └── OFL.txt
@@ -95,9 +94,10 @@ Refresh your browser to see changes instantly!
 ```
 
 ### Adjust Layout
-Edit `mindmap-generator.jsx`:
-- Line ~67: `radius` - Distance from center to first level
-- Line ~102: `distance` - Spacing between nested levels
+Edit the React component inside `index.html`:
+- `baseRadius` and `distanceFromParent` control branch spacing
+- Angular spread logic inside `processNode` balances siblings
+- Drag behavior lives near the render section (search for `node-wrapper`)
 
 ## Best Practices
 
@@ -129,7 +129,7 @@ Edit `mindmap-generator.jsx`:
 **Nothing appears:**
 - Check browser console for errors
 - Verify XML files are valid
-- Ensure server is running on port 8000
+- Ensure your local server is running (default examples use port 3000)
 
 **Colors not showing:**
 - Check `palette.xml` format
@@ -138,7 +138,7 @@ Edit `mindmap-generator.jsx`:
 
 **Nodes overlapping:**
 - Reduce number of categories
-- Adjust `radius` in mindmap-generator.jsx
+- Adjust the spacing constants in `index.html`
 
 **Drag not working:**
 - Check browser console for React errors
