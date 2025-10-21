@@ -1,15 +1,25 @@
 ---
-name: claude-skills-mindmap
+schema_version: 1
+name: mindmap-skill
 version: 1.1.0
 description: Present and maintain an interactive React mind map that documents Claude Skills concepts.
-author: Claude Skills Community
+authors:
+  - Claude Skills Community
 license: MIT
-tags: [visualization, react, mindmap, opml, jsx]
+tags:
+  - visualization
+  - react
+  - mindmap
+  - opml
+  - jsx
 inputs:
-  palette: palette.xml
-  outline: mindmap.opml
+  - id: palette
+    path: palette.xml
+  - id: outline
+    path: mindmap.opml
 outputs:
-  preview: index.html
+  - id: preview
+    path: index.html
 tools:
   - python
 ---
