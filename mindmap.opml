@@ -5,43 +5,43 @@
     <dateCreated>Mon, 20 Oct 2025 00:00:00 GMT</dateCreated>
   </head>
   <body>
-    <outline text="Claude Skills" _note="A framework for extending Claude's capabilities through specialized instructions and tools">
-      <outline text="Concept" _note="What a Claude Skill is and why it matters.">
-        <outline text="Specialized instructions" _note="Break down the task into ordered steps, list fallback options, and specify clarifying questions Claude must ask to stay aligned with the requester"/>
-        <outline text="Best practices" _note="Summarize field-tested patterns, tone guidelines, formatting rules, and validation checks that keep the output polished"/>
-        <outline text="Tool integration" _note="Detail which Python modules, shell commands, or external APIs are allowed, including invocation syntax and safety constraints"/>
+    <outline text="Habilidades Claude" _note="Un marco para ampliar as capacidades de Claude mediante instrucións e ferramentas especializadas">
+      <outline text="Concepto" _note="Que é unha habilidade de Claude e por que é importante.">
+        <outline text="Instrucións especializadas" _note="Divide a tarefa en pasos ordenados, enumera as opcións alternativas e especifica as preguntas aclaratorias que Claude debe facer para manterse aliñado co solicitante."/>
+        <outline text="Boas prácticas" _note="Resumir patróns probados no campo, directrices de ton, regras de formato e comprobacións de validación que manteñen a saída pulida"/>
+        <outline text="Integración de ferramentas" _note="Detallar que módulos de Python, comandos de shell ou API externas están permitidos, incluíndo a sintaxe de invocación e as restricións de seguridade"/>
       </outline>
-      <outline text="Structure" _note="What's inside a Claude Skill folder.">
-        <outline text="SKILL.md" _note="Frontmatter enumerates metadata, inputs, outputs, and allowed tooling. Narrative sections then define objectives, context-gathering prompts, the execution flow, review checklists, and escalation rules so Claude knows precisely how to deliver the task."/>
-        <outline text="Supporting files" _note="Stores every asset referenced by SKILL.md—sample inputs, prompt fragments, lookup tables, helper scripts—and keeps them in predictable paths so Claude can load them directly from /mnt/skills."/>
-        <outline text="LICENSE.txt" _note="Spells out redistribution rights, attribution wording, data-handling rules, and any limits on commercial or external sharing of the skill bundle."/>
+      <outline text="Estrutura" _note="Que hai dentro dunha carpeta de habilidades de Claude.">
+        <outline text="SKILL.md" _note="A sección Frontmatter enumera os metadatos, as entradas, as saídas e as ferramentas permitidas. As seccións narrativas definen entón os obxectivos, as indicacións de recollida de contexto, o fluxo de execución, as listas de verificación de revisión e as regras de escalado para que Claude saiba con precisión como entregar a tarefa."/>
+        <outline text="Arquivos de apoio" _note="Almacena todos os recursos aos que fai referencia SKILL.md -entradas de exemplo, fragmentos de prompts, táboas de busca, scripts auxiliares- e manténos en rutas predicibles para que Claude poida cargalos directamente desde /mnt/skills."/>
+        <outline text="LICENSE.txt" _note="Explica os dereitos de redistribución, a redacción da atribución, as regras de manexo de datos e calquera límite para o intercambio comercial ou externo do paquete de habilidades."/>
       </outline>
-      <outline text="Creation Process" _note="How to craft and package a new skill.">
-        <outline text="Identify task" _note="Select a repeatable workflow where expert judgment, brand voice, or compliance rules demand consistent handling from Claude"/>
-        <outline text="Test approaches" _note="Experiment with prompts, tool calls, and datasets—logging successes and failures—until you settle on instructions that deliver reliable results"/>
-        <outline text="Document patterns" _note="Capture the refined steps, decision points, acceptance criteria, and edge cases so the process survives handoffs and audits"/>
-        <outline text="Package resources" _note="Assemble SKILL.md, required assets, and metadata into the folder, running a dry run to ensure Claude can access everything without manual fixes"/>
+      <outline text="Proceso de creación" _note="Como crear e empaquetar unha nova habilidade.">
+        <outline text="Identificar a tarefa" _note="Selecciona un fluxo de traballo repetible onde o xuízo experto, a voz da marca ou as normas de cumprimento esixen unha xestión consistente por parte de Claude."/>
+        <outline text="Enfoques de proba" _note="Experimenta con indicacións, chamadas a ferramentas e conxuntos de datos -rexistrando os éxitos e os erros- ata que te decidas por instrucións que ofrezan resultados fiables."/>
+        <outline text="Patróns de documentos" _note="Capturar os pasos refinados, os puntos de decisión, os criterios de aceptación e os casos límite para que o proceso sobreviva ás transferencias e auditorías."/>
+        <outline text="Recursos do paquete" _note="Reúne SKILL.md, os recursos e os metadatos necesarios no cartafol, executando unha proba para garantir que Claude poida acceder a todo sen correccións manuais."/>
       </outline>
-      <outline text="Usage" _note="How Claude loads and follows a skill.">
-        <outline text="Automatic loading" _note="Once mounted, skill folders appear under /mnt/skills, letting Claude read instructions and fetch referenced assets on demand"/>
-        <outline text="Claude reads first" _note="Claude reviews SKILL.md before responding, absorbing objectives, guardrails, and escalation guidance so replies stay within scope"/>
-        <outline text="Apply knowledge" _note="Throughout the chat, Claude cites the documented flow, runs only approved tools, and cross-checks outputs against the embedded quality checklist"/>
+      <outline text="Uso" _note="Como Claude carga e segue unha habilidade.">
+        <outline text="Carga automática" _note="Unha vez montadas, as carpetas de habilidades aparecen en /mnt/skills, o que permite a Claude ler as instrucións e obter os recursos aos que se fai referencia baixo demanda."/>
+        <outline text="Claude le primeiro" _note="Claude revisa SKILL.md antes de responder, absorbendo obxectivos, medidas cautelares e orientación sobre a escalabilidade para que as respostas se manteñan dentro do alcance."/>
+        <outline text="Aplicar coñecementos" _note="Ao longo da conversa, Claude cita o fluxo documentado, executa só ferramentas aprobadas e compara os resultados coa lista de verificación de calidade integrada."/>
       </outline>
-      <outline text="Types" _note="The kinds of skills available to Claude.">
-        <outline text="Public" _note="Anthropic-maintained skills that ship with Claude—for example, document conversion or spreadsheet assistants that everyone can access by default"/>
-        <outline text="Example" _note="Reference projects published by Anthropic to demonstrate patterns; you can study or customize them to accelerate your own builds"/>
-        <outline text="User" _note="Private or team-specific skills you author, embedding proprietary workflows, data policies, or integrations unique to your organization"/>
+      <outline text="Tipos" _note="Os tipos de habilidades dispoñibles para Claude.">
+        <outline text="Público" _note="Habilidades mantidas por Anthropic que se inclúen con Claude, por exemplo, asistentes de conversión de documentos ou follas de cálculo aos que todos poden acceder por defecto"/>
+        <outline text="Exemplo" _note="Fai referencia a proxectos publicados por Anthropic para demostrar patróns; podes estudalos ou personalizalos para acelerar as túas propias compilacións."/>
+        <outline text="Usuario" _note="Habilidades privadas ou específicas do equipo que creas, integrando fluxos de traballo propietarios, políticas de datos ou integracións exclusivas da túa organización"/>
       </outline>
-      <outline text="Benefits" _note="Why teams codify workflows into skills.">
-        <outline text="Consistent quality" _note="Codify tone, structure, and acceptance criteria so every run mirrors expert output without constant supervision"/>
-        <outline text="Time savings" _note="Reduce prompt tinkering and onboarding effort by giving Claude the winning playbook upfront"/>
-        <outline text="Complex tasks" _note="Enable Claude to manage multi-stage projects—research, drafting, QA—while preserving context and guardrails"/>
+      <outline text="Beneficios" _note="Por que os equipos codifican os fluxos de traballo en habilidades.">
+        <outline text="Calidade consistente" _note="Codificar o ton, a estrutura e os criterios de aceptación para que cada execución reflicta a produción dun experto sen supervisión constante"/>
+        <outline text="Aforro de tempo" _note="Reduce o esforzo de adaptación e incorporación rápida dándolle a Claude o manual gañador por adiantado"/>
+        <outline text="Tarefas complexas" _note="Permite que Claude xestione proxectos de varias etapas -investigación, redacción, control de calidade- preservando o contexto e as barreiras de seguridade."/>
       </outline>
-      <outline text="Resources" _note="Where to find docs, support, and peers.">
-        <outline text="Claude Documentation" _note="Offers deep-dive tutorials, launch checklists, and example repositories straight from Anthropic's documentation hub"/>
-        <outline text="Support Center" _note="Provides troubleshooting workflows, known-issue trackers, and contact channels for production help"/>
-        <outline text="API Reference" _note="Details REST endpoints and payloads for uploading, listing, and enabling skills programmatically"/>
-        <outline text="Community" _note="Connects builders through forums and events where they swap skill blueprints and real-world performance notes"/>
+      <outline text="Recursos" _note="Onde atopar documentos, apoio e compañeiros.">
+        <outline text="Documentación de Claude" _note="Ofrece titoriais exhaustivos, listas de verificación de lanzamento e repositorios de exemplo directamente desde o centro de documentación de Anthropic"/>
+        <outline text="Centro de asistencia" _note="Ofrece fluxos de traballo para a resolución de problemas, rastreadores de problemas coñecidos e canles de contacto para axuda na produción"/>
+        <outline text="Referencia da API" _note="Detalla os puntos finais e as cargas útiles REST para cargar, listar e habilitar habilidades mediante programación"/>
+        <outline text="Comunidade" _note="Conecta os construtores a través de foros e eventos onde intercambian planos de habilidades e notas de rendemento no mundo real."/>
       </outline>
     </outline>
   </body>
